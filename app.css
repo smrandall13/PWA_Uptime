@@ -709,6 +709,9 @@ body.theme-light select option textarea {
 .app-icon-eye {
 	background-image: url(/assets/images/eye-white.png);
 }
+.app-icon-delete {
+	background-image: url(/assets/images/delete-white.png);
+}
 
 /* Support */
 .app-hidden {
