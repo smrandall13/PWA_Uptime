@@ -712,6 +712,9 @@ body.theme-light select option textarea {
 .app-icon-delete {
 	background-image: url(/assets/images/delete-white.png);
 }
+.app-icon-refresh {
+	background-image: url(/assets/images/refresh-white.png);
+}
 
 /* Support */
 .app-hidden {
@@ -755,6 +758,10 @@ body.theme-light select option textarea {
 	text-align: center;
 	width: auto;
 	margin: auto;
+}
+
+.align-center {
+	text-align: center;
 }
 
 .color-caution {

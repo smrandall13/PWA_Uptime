@@ -471,15 +471,17 @@ const formatDate = (variable = '', format = '') => {
 	}
 };
 
-const formatTime = (variable = '') => {
+const formatTime = (variable = '', showSeconds = false) => {
 	if (isEmpty(variable)) return '';
 
 	const date = new Date(variable);
 	const hours = date.getHours();
 	const minutes = date.getMinutes();
+	const seconds = date.getSeconds();
 	const ampm = hours >= 12 ? 'PM' : 'AM';
 	const formattedHours = hours % 12 || 12;
-	return `${formattedHours}:${minutes < 10 ? '0' : ''}${minutes} ${ampm}`;
+
+	return `${formattedHours}:${minutes < 10 ? '0' : ''}${minutes}${showSeconds ? `:${seconds < 10 ? '0' : ''}${seconds}` : ''} ${ampm}`;
 };
 
 // Initialize PWA functionality

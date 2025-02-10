@@ -3,7 +3,7 @@ const CACHE_NAME = `pwa-cache-${CACHE_VERSION}`;
 
 const ASSETS_APP = ['/', '/index.html', '/app.js', '/app.css', '/manifest.json', '/app/home.html', '/app/settings.html', '/app/home.js', '/app/settings.js', '/app/home.css', '/app/settings.css'];
 const ASSETS_FONTS = ['/assets/fonts/Playfair.ttf', '/assets/fonts/Nunito.ttf', '/assets/fonts/CourierPrime.ttf', '/assets/fonts/Roboto.ttf'];
-const ASSETS_ICONS = ['/icons/favicon.png', '/icons/app-loadimg.png', '/icons/app-icon.png', '/assets/images/settings-white.png', '/assets/images/download-white.png', '/assets/images/home-white.png', '/assets/images/draggable-white.png', '/assets/images/hand-white.png', '/assets/images/create-white.png', '/assets/images/edit-white.png', '/assets/images/profile-white.png'];
+const ASSETS_ICONS = ['/icons/favicon.png', '/icons/app-loadimg.png', '/icons/app-icon.png', '/assets/images/settings-white.png', '/assets/images/download-white.png', '/assets/images/home-white.png', '/assets/images/draggable-white.png', '/assets/images/hand-white.png', '/assets/images/create-white.png', '/assets/images/delete-white.png', '/assets/images/refresh-white.png', '/assets/images/edit-white.png', '/assets/images/profile-white.png'];
 
 /** Custom Asset List**/
 const ASSETS_CUSTOM = ['/pages/uptime.html', '/pages/uptime.css', '/pages/uptime.js'];

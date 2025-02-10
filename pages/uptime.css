@@ -178,6 +178,13 @@
 	border-top: 2px solid var(--color-accent);
 }
 
+.uptime-log-row {
+	padding: 4px;
+}
+.uptime-log-row:nth-child(even) {
+	background-color: var(--theme-dark-offset);
+}
+
 .uptime-member-add {
 }
 .uptime-member-add:hover {

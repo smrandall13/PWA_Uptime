@@ -4,6 +4,7 @@ const list = document.getElementById('uptime-list');
 const UPTIME = {
 	settings: { interval: null },
 	websites: [],
+	history: [],
 
 	website: {
 		add: function () {
@@ -33,37 +34,86 @@ const UPTIME = {
 				const row = document.createElement('div');
 				row.className = 'uptime-table-row';
 				row.innerHTML = `
+				   <div class='uptime-table-cell'><button class='app-button app-button-small' onclick="UPTIME.log.show(${index})">History</button></div>
 				   <div class='uptime-table-cell'><button class='app-button app-button-small' onclick="UPTIME.check(${index})">Check</button></div>
 				   <div class='uptime-table-cell'>${site}</div>
-				   <div class='uptime-table-cell' id='website-status-${index}'>Checking...</div>
-				   <div class='uptime-table-cell'><button class='app-button app-button-caution app-button-small app-icon-delete' onclick="UPTIME.remove(${index})">Remove</button></div>
+				   <div class='uptime-table-cell align-center' id='website-status-${index}'>Checking...</div>
+				   <div class='uptime-table-cell'><div class='app-button app-button-caution app-button-small app-icon-delete app-icon' onclick="UPTIME.remove(${index})"></div></div>
 			    `;
 				list.appendChild(row);
 				UPTIME.check(site, index);
 			});
-			STORAGE.set('app-uptime', UPTIME.websites);
+			STORAGE.set('uptime-websites', UPTIME.websites);
 		},
 	},
 	check: function (index) {
 		const url = UPTIME.websites[index];
 		if (!isEmpty(url)) {
 			document.getElementById(`website-status-${index}`).innerHTML = 'Checking...';
+			document.getElementById(`website-status-${index}`).className = 'uptime-table-cell ';
+			const startTime = Date.now();
 			fetch(url, { method: 'HEAD', mode: 'no-cors' })
 				.then(() => {
 					document.getElementById(`website-status-${index}`).innerHTML = 'Online';
 					document.getElementById(`website-status-${index}`).className = 'uptime-table-cell uptime-online';
+					const responseTime = Date.now() - startTime;
+					UPTIME.log.add(url, 'Online', responseTime);
 				})
 				.catch(() => {
 					document.getElementById(`website-status-${index}`).innerHTML = 'Offline';
 					document.getElementById(`website-status-${index}`).className = 'uptime-table-cell uptime-offline';
+					const responseTime = Date.now() - startTime;
+					UPTIME.log.add(url, 'Offline', responseTime);
 				});
 		}
 	},
 	refresh: function () {
 		if (UPTIME.websites && UPTIME.websites.length > 0) UPTIME.websites.forEach((site, index) => UPTIME.check(index));
 	},
+	log: {
+		add: function (url, status, responseTime) {
+			UPTIME.history.push({
+				url: url,
+				status: status,
+				responseTime: responseTime,
+				date: new Date().toISOString(),
+			});
+
+			if (UPTIME.history.length > 100) {
+				UPTIME.history.shift();
+			}
+			STORAGE.set('uptime-history', UPTIME.history);
+		},
+		show: function (index) {
+			const website = UPTIME.websites[index];
+			if (!isEmpty(website)) {
+				const history = UPTIME.history.filter((log) => log.url === website);
+				// Sort By Date Descending
+				history.sort((a, b) => new Date(b.date) - new Date(a.date));
+				let content = `<h3>Site: ${UPTIME.websites[index]}</h3>`;
+				history.forEach((log) => {
+					const statusText = log.status;
+					let status = `<span class='uptime-offline'>${statusText}</span>`;
+					if (statusText === 'Online') {
+						status = `<span class='uptime-online'>${statusText}</span>`;
+					}
+					content += `<div class='uptime-log-row'>${formatDate(log.date)} ${formatTime(log.date, true)} - ${status} - ${log.responseTime}ms</div>`;
+				});
+				MESSAGE.show(`History for Site`, content);
+			}
+		},
+	},
 	init: function () {
-		let uptimeWebsites = STORAGE.get('app-uptime');
+		// History
+		let uptimeHistory = STORAGE.get('uptime-history');
+		if (isEmpty(uptimeHistory)) {
+			UPTIME.history = [];
+		} else {
+			UPTIME.history = uptimeHistory;
+		}
+
+		// Websites
+		let uptimeWebsites = STORAGE.get('uptime-websites');
 		if (isEmpty(uptimeWebsites)) {
 			UPTIME.websites = [];
 		} else {
