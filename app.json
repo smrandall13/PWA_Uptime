@@ -1,0 +1,26 @@
+{
+	"name": "Up-Time",
+	"icon": "/icons/app-icon.png",
+	"version": "1.0.0",
+	"defaultPage": "uptime",
+	"defaultTheme": "Dark",
+	"defaultFont": "Nunito",
+
+	"copyright": "&copy; 2025 Shaun Randall",
+
+	"displayMenu": false,
+	"displayHome": false,
+	"displaySettings": false,
+
+	"allowInstall": true,
+
+	"pages": [
+		{
+			"id": "uptime",
+			"name": "Up-Time",
+			"html": "/pages/uptime.html",
+			"style": "/pages/uptime.css",
+			"script": "/pages/uptime.js"
+		}
+	]
+}
