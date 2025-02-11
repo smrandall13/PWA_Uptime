@@ -30,15 +30,24 @@ const UPTIME = {
 	list: {
 		update: function () {
 			list.innerHTML = '';
+
 			UPTIME.websites.forEach((site, index) => {
 				const row = document.createElement('div');
 				row.className = 'uptime-table-row';
+
+				const offline = UPTIME.history.filter((log) => log.url === site && log.status !== 'Online');
+
+				let siteName = site;
+				if (offline.length > 0) {
+					siteName += ` <span class="uptime-offline">${offline.length}</span>`;
+				}
+
 				row.innerHTML = `
 				   <div class='uptime-table-cell'><button class='app-button app-button-small' onclick="UPTIME.log.show(${index})">History</button></div>
 				   <div class='uptime-table-cell'><button class='app-button app-button-small' onclick="UPTIME.check(${index})">Check</button></div>
-				   <div class='uptime-table-cell'>${site}</div>
+				   <div class='uptime-table-cell'>${siteName}</div>
 				   <div class='uptime-table-cell align-center' id='website-status-${index}'>Checking...</div>
-				   <div class='uptime-table-cell'><div class='app-button app-button-caution app-button-small app-icon-delete app-icon' onclick="UPTIME.remove(${index})"></div></div>
+				   <div class='uptime-table-cell'><div class='app-button app-button-caution app-button-small app-icon-delete app-icon' onclick="UPTIME.website.remove(${index})"></div></div>
 			    `;
 				list.appendChild(row);
 				UPTIME.check(site, index);
@@ -49,19 +58,20 @@ const UPTIME = {
 	check: function (index) {
 		const url = UPTIME.websites[index];
 		if (!isEmpty(url)) {
-			document.getElementById(`website-status-${index}`).innerHTML = 'Checking...';
-			document.getElementById(`website-status-${index}`).className = 'uptime-table-cell ';
+			const statusElement = document.getElementById(`website-status-${index}`);
+			statusElement.innerHTML = 'Checking...';
+			statusElement.className = 'uptime-table-cell ';
 			const startTime = Date.now();
 			fetch(url, { method: 'HEAD', mode: 'no-cors' })
 				.then(() => {
-					document.getElementById(`website-status-${index}`).innerHTML = 'Online';
-					document.getElementById(`website-status-${index}`).className = 'uptime-table-cell uptime-online';
+					statusElement.innerHTML = 'Online';
+					statusElement.className = 'uptime-table-cell uptime-online';
 					const responseTime = Date.now() - startTime;
 					UPTIME.log.add(url, 'Online', responseTime);
 				})
 				.catch(() => {
-					document.getElementById(`website-status-${index}`).innerHTML = 'Offline';
-					document.getElementById(`website-status-${index}`).className = 'uptime-table-cell uptime-offline';
+					statusElement.innerHTML = 'Offline';
+					statusElement.className = 'uptime-table-cell uptime-offline';
 					const responseTime = Date.now() - startTime;
 					UPTIME.log.add(url, 'Offline', responseTime);
 				});
@@ -79,7 +89,7 @@ const UPTIME = {
 				date: new Date().toISOString(),
 			});
 
-			if (UPTIME.history.length > 100) {
+			if (UPTIME.history.length > 10000) {
 				UPTIME.history.shift();
 			}
 			STORAGE.set('uptime-history', UPTIME.history);
@@ -120,6 +130,15 @@ const UPTIME = {
 			UPTIME.websites = uptimeWebsites;
 			UPTIME.list.update();
 		}
+
+		const inputField = document.getElementById('uptime-website'); // Replace with the actual input ID
+		inputField.addEventListener('keypress', (event) => {
+			console.log('K', event.key);
+			if (event.key === 'Enter') {
+				event.preventDefault(); // Prevent form submission if inside a form
+				UPTIME.website.add();
+			}
+		});
 
 		document.getElementById('uptime-add').addEventListener('click', UPTIME.website.add);
 

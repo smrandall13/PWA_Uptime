@@ -1,7 +1,7 @@
 {
 	"name": "Up-Time",
 	"icon": "/icons/app-icon.png",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"defaultPage": "uptime",
 	"defaultTheme": "Dark",
 	"defaultFont": "Nunito",
