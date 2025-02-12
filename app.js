@@ -1,6 +1,8 @@
 const appContent = document.getElementById('app-content');
 const APP = {
 	data: {},
+	timeouts: [],
+	intervals: [],
 	settings: { page: '', theme: '', font: '' },
 	page: {
 		current: '',

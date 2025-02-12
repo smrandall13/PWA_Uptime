@@ -604,6 +604,8 @@ body.theme-light select option textarea {
 	font-size: var(--font-size-h2);
 	font-weight: bold;
 }
+
+/* Message */
 #app-message-back {
 	background-color: var(--theme-dark-back);
 	position: absolute;
@@ -683,12 +685,139 @@ body.theme-light select option textarea {
 	margin-top: 16px;
 }
 
+/* Box */
+.app-box {
+	background: var(--theme-dark-back);
+	color: var(--theme-dark-text);
+	padding: 8px;
+	border-radius: var(--border-radius);
+	display: flex;
+	width: 100%;
+	flex-direction: row;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+.app-box-title {
+	font-size: var(--font-size-h2);
+	width: 100%;
+	min-width: 100%;
+	text-align: left;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+}
+.app-box-wrapper {
+	border-radius: var(--border-radius);
+	display: flex;
+	width: 100%;
+	flex-direction: row;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+.app-box-group {
+	border: var(--border);
+	border-radius: var(--border-radius);
+	padding: 8px;
+	min-width: 300px;
+	flex: 1;
+	width: auto;
+	display: inline-block;
+}
+.app-box-content {
+	display: grid;
+	width: 100%;
+	min-width: 100%;
+	max-width: 100%;
+	grid-template-columns: auto 1fr;
+	grid-gap: 4px;
+	font-size: var(--font-size);
+}
+.app-box-span {
+	grid-column: span 2;
+}
+.app-box-label {
+	text-align: right;
+	display: inline-flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: end;
+	width: auto;
+	min-width: 100px;
+}
+.app-box-label::after {
+	content: ':';
+	margin-left: 2px;
+	margin-right: 4px;
+}
+.app-box-value {
+	text-align: right;
+	display: inline-flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: flex-start;
+}
+
+/* Table */
+.app-table {
+	display: table;
+	width: auto;
+	min-width: none;
+	max-width: 100%;
+	border-collapse: collapse;
+}
+.app-table-header {
+	display: table-header-group;
+}
+.app-table-body {
+	display: table-row-group;
+}
+.app-table-row {
+	display: table-row;
+}
+.app-table-cell {
+	display: table-cell;
+	padding: 4px 8px;
+	text-align: left;
+	font-size: var(--font-size-sm);
+	border: var(--border);
+	justify-content: start;
+	vertical-align: middle;
+}
+.app-table-header .app-table-cell {
+	font-size: var(--font-size);
+	text-align: center;
+}
+.app-table-row:nth-child(odd) {
+	background-color: var(--theme-dark-offset);
+}
+
 /* Icons */
 .app-icon {
-	width: 20px;
-	height: 20px;
+	width: 40px;
+	min-width: 40px;
+	max-width: 40px;
+	height: 40px;
+	min-height: 40px;
+	max-height: 40px;
 	display: inline-block;
 	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
+}
+.app-icon-small {
+	width: 30px;
+	min-width: 30px;
+	max-width: 30px;
+	height: 30px;
+	min-height: 30px;
+	max-height: 30px;
+	margin: 0;
+	padding: 0;
+	margin-top: 4px;
+	background-size: 80%;
+	background-image: url(../assets/images/eye-white.png);
 	background-repeat: no-repeat;
 	background-position: center;
 }
@@ -715,8 +844,39 @@ body.theme-light select option textarea {
 .app-icon-refresh {
 	background-image: url(/assets/images/refresh-white.png);
 }
+.app-icon-web {
+	background-image: url(/assets/images/web-white.png);
+}
+.app-icon-recycle {
+	background-image: url(/assets/images/recycle-white.png);
+}
+.app-icon-profile {
+	background-image: url(/assets/images/profile-white.png);
+}
+.app-icon-search {
+	background-image: url(/assets/images/search-white.png);
+}
+.app-icon-return {
+	background-image: url(/assets/images/return-white.png);
+}
+.app-icon-split {
+	background-image: url(/assets/images/split-white.png);
+}
+.app-icon-store {
+	background-image: url(/assets/images/store-white.png);
+}
+.app-icon-lookup {
+	background-image: url(/assets/images/lookup-white.png);
+}
+.app-icon-info {
+	background-image: url(/assets/images/info-white.png);
+}
 
 /* Support */
+.app-border {
+	border: var(--border);
+	border-radius: var(--border-radius);
+}
 .app-hidden {
 	display: none;
 	visibility: hidden;
@@ -728,6 +888,29 @@ body.theme-light select option textarea {
 	max-height: none;
 	margin: 0;
 	padding: 0;
+}
+.app-ellipsis {
+	display: inline-block;
+	width: auto;
+	flex: 1;
+	word-wrap: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+.bold {
+	font-weight: bold;
+}
+.italic {
+	font-style: italic;
+}
+.underline {
+	text-decoration: underline;
+}
+.font-size-h1 {
+	font-size: var(--font-size-h1);
+}
+.font-size-h2 {
+	font-size: var(--font-size-h2);
 }
 .font-size-sm {
 	font-size: var(--font-size-sm);
@@ -762,6 +945,9 @@ body.theme-light select option textarea {
 
 .align-center {
 	text-align: center;
+}
+.align-right {
+	text-align: right;
 }
 
 .color-caution {

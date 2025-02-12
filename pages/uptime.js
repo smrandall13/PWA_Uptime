@@ -1,12 +1,16 @@
 const container = document.getElementById('uptime-content');
-const list = document.getElementById('uptime-list');
 
 const UPTIME = {
-	settings: { interval: null },
+	settings: { checkInterval: null, tableInterval: null },
 	websites: [],
 	history: [],
-
 	website: {
+		open: function (index) {
+			if (index === -1) return;
+			const site = UPTIME.websites[index].site;
+			if (isEmpty(site)) return;
+			window.open(site, `_blank`);
+		},
 		add: function () {
 			const input = document.getElementById('uptime-website');
 
@@ -16,64 +20,146 @@ const UPTIME = {
 			}
 
 			if (!isEmpty(url) && !UPTIME.websites.includes(url)) {
-				UPTIME.websites.push(url);
-				UPTIME.websites.sort();
+				UPTIME.websites.push({ site: url, status: '' });
+				UPTIME.websites.sort((a, b) => a.site.localeCompare(b.site));
+
+				STORAGE.set('uptime-websites', UPTIME.websites);
+
 				input.value = '';
 				UPTIME.list.update();
 			}
 		},
-		remove: function (index) {
-			UPTIME.websites.splice(index, 1);
+		remove: function (index = -1, confirm = 0) {
+			if (index === -1) return;
+			const site = UPTIME.websites[index].site;
+			if (isEmpty(site)) return;
+			if (isEmpty(confirm)) confirm = 0;
+
+			if (confirm === 0) {
+				MESSAGE.confirm('Remove Website', `Are you sure you want to remove this website from the list?<br>${site}`, () => UPTIME.website.remove(index, 1));
+			}
+			if (confirm === 1) {
+				UPTIME.websites.splice(index, 1);
+				STORAGE.set('uptime-websites', UPTIME.websites);
+
+				// Remove History
+				UPTIME.history = UPTIME.history.filter((log) => log.url !== site);
+				STORAGE.set('uptime-history', UPTIME.history);
+			}
 			UPTIME.list.update();
 		},
 	},
 	list: {
 		update: function () {
-			list.innerHTML = '';
+			const uptimeTable = document.getElementById('uptime-table');
+			clearInterval(UPTIME.settings.tableInterval);
+			if (uptimeTable && uptimeTable.innerHTML) {
+				uptimeTable.innerHTML = '';
 
-			UPTIME.websites.forEach((site, index) => {
-				const row = document.createElement('div');
-				row.className = 'uptime-table-row';
+				let tableRows = [];
+				UPTIME.websites.forEach((entry, index) => {
+					const site = entry.site;
+					let siteName = site.replace('https://', '').replace('http://', '');
+					let status = entry.status;
+					if (isEmpty(status)) status = 'Checking';
 
-				const offline = UPTIME.history.filter((log) => log.url === site && log.status !== 'Online');
+					const records = UPTIME.history.filter((log) => log.url === site);
+					const offline = UPTIME.history.filter((log) => log.url === site && log.status !== 'Online');
 
-				let siteName = site;
-				if (offline.length > 0) {
-					siteName += ` <span class="uptime-offline">${offline.length}</span>`;
-				}
+					let uptime = `100% <span class='font-size-xsm italic' style='margin-left:8px;'>(${records.length} )</span>`;
+					if (offline.length > 0) {
+						uptime = ((records.length / (records.length + offline.length)) * 100).toFixed(2) + `% <span class='font-size-xsm italic' style='margin-left:8px;'>(${records.length - offline.length} or ${records.length})</span>`;
+					}
 
-				row.innerHTML = `
-				   <div class='uptime-table-cell'><button class='app-button app-button-small' onclick="UPTIME.log.show(${index})">History</button></div>
-				   <div class='uptime-table-cell'><button class='app-button app-button-small' onclick="UPTIME.check(${index})">Check</button></div>
-				   <div class='uptime-table-cell'>${siteName}</div>
-				   <div class='uptime-table-cell align-center' id='website-status-${index}'>Checking...</div>
-				   <div class='uptime-table-cell'><div class='app-button app-button-caution app-button-small app-icon-delete app-icon' onclick="UPTIME.website.remove(${index})"></div></div>
-			    `;
-				list.appendChild(row);
-				UPTIME.check(site, index);
-			});
-			STORAGE.set('uptime-websites', UPTIME.websites);
+					let lastDate = '';
+					let last100 = ``;
+					if (records.length > 0) {
+						const last = records[records.length - 1];
+						const date = new Date(last.date).toLocaleString();
+						lastDate = `<div class='app-box-label'>Last</div><div class='app-box-value'>${formatDate(date) + ' ' + formatTime(date, 1)}</div>`;
+
+						if (records.length >= 100) {
+							last100 = `<div class='uptime-last-block'>`;
+							for (let l = 1; l <= 100; l++) {
+								const entry = records[records.length - l];
+
+								let entryLast = formatDate(entry.date) + ' ' + formatTime(entry.date, 1);
+
+								let entryClass = 'uptime-back-online';
+								if (entry.status !== 'Online') {
+									entryClass = 'uptime-back-offline';
+								}
+								last100 += `<div class='uptime-last-entry ${entryClass}' title='${entryLast}'></div>`;
+							}
+							last100 += `</div>`;
+						}
+					}
+
+					if (status === 'Online') status = `<span class='uptime-online'>Online</span>`;
+					if (status !== 'Online' && status !== 'Checking') status = `<span class='uptime-offline'>${status}</span>`;
+
+					let row = `<div class='app-box app-border uptime-site' style='flex-direction:column;'>
+						<div class='app-box-title' style='justify-content:start;'>
+							<div class='app-button app-icon-eye app-icon-small' onclick="UPTIME.website.open(${index})" title='View'></div>
+							<div class='app-ellipsis'>${siteName}</div>
+							<div class='app-button app-button-caution app-icon-delete app-icon-small' style='flex:0;' onclick="UPTIME.website.remove(${index})" title='Remove'></div>
+						</div>
+						<div class='app-box-wrapper'>
+							<div class='app-box-group'>
+								<div class='app-box-content'>
+									<div class='app-box-label'>
+										<div class='app-button app-icon-refresh app-icon-small' style='margin-right:auto;' onclick="UPTIME.check(${index},1)" title='Refresh'></div>
+										Status
+									</div><div class='app-box-value' id='website-status-${index}'>${status}</div>${lastDate}
+								</div>
+							</div>
+							<div class='app-box-group'>
+								<div class='app-box-content'>
+									<div class='app-box-label'>
+										<div class='app-button app-icon-info app-icon-small' style='margin-right:auto;' onclick="UPTIME.log.show(${index})" title='Info'></div>
+										Uptime
+									</div><div class='app-box-value'>${uptime}</div>
+									<div class='app-box-span'>${last100}</div>
+								</div>
+							</div>
+						</div>
+					</div>`;
+					tableRows.push(row);
+				});
+				uptimeTable.innerHTML = `<div class='app-box' style='flex-direction:column;gap:8px;padding:0;'>${tableRows.join('')}</div>`;
+			}
 		},
 	},
-	check: function (index) {
-		const url = UPTIME.websites[index];
-		if (!isEmpty(url)) {
+	check: function (index, force = false) {
+		const entry = UPTIME.websites[index];
+		let site = entry.site;
+		if (!isEmpty(site)) {
 			const statusElement = document.getElementById(`website-status-${index}`);
-			statusElement.innerHTML = 'Checking...';
-			statusElement.className = 'uptime-table-cell ';
+			if (statusElement) {
+				if (statusElement.innerHTML && (isEmpty(statusElement.innerHTML) || force)) {
+					statusElement.innerHTML = 'Checking';
+				}
+			}
+
 			const startTime = Date.now();
-			fetch(url, { method: 'HEAD', mode: 'no-cors' })
+			const url = `${site}?_=${startTime}`; // Append timestamp to prevent caching
+
+			fetch(url, { cache: 'no-store', method: 'HEAD', mode: 'no-cors' })
 				.then(() => {
-					statusElement.innerHTML = 'Online';
-					statusElement.className = 'uptime-table-cell uptime-online';
+					if (statusElement) {
+						statusElement.innerHTML = '<span class="uptime-online">Online</span>';
+					}
+					const dateNow = new Date().toLocaleString();
+					document.getElementById('uptime-last-checked').innerHTML = formatDate(dateNow) + ' ' + formatTime(dateNow, 1);
 					const responseTime = Date.now() - startTime;
-					UPTIME.log.add(url, 'Online', responseTime);
+					UPTIME.log.add(site, 'Online', responseTime);
 				})
 				.catch(() => {
-					statusElement.innerHTML = 'Offline';
-					statusElement.className = 'uptime-table-cell uptime-offline';
+					if (statusElement) {
+						statusElement.innerHTML = '<span class="uptime-offline">Offline</span>';
+					}
 					const responseTime = Date.now() - startTime;
-					UPTIME.log.add(url, 'Offline', responseTime);
+					UPTIME.log.add(site, 'Offline', responseTime);
 				});
 		}
 	},
@@ -89,18 +175,29 @@ const UPTIME = {
 				date: new Date().toISOString(),
 			});
 
+			UPTIME.websites.forEach((entry, index) => {
+				if (entry.site === url) {
+					entry.status = status;
+					entry.last = new Date().toISOString();
+					entry.responseTime = responseTime;
+				}
+			});
+
 			if (UPTIME.history.length > 10000) {
 				UPTIME.history.shift();
 			}
+			STORAGE.set('uptime-websites', UPTIME.websites);
 			STORAGE.set('uptime-history', UPTIME.history);
+			UPTIME.list.update();
 		},
 		show: function (index) {
-			const website = UPTIME.websites[index];
-			if (!isEmpty(website)) {
-				const history = UPTIME.history.filter((log) => log.url === website);
+			const entry = UPTIME.websites[index];
+			const site = entry.site;
+			if (!isEmpty(site)) {
+				const history = UPTIME.history.filter((log) => log.url === site);
 				// Sort By Date Descending
 				history.sort((a, b) => new Date(b.date) - new Date(a.date));
-				let content = `<h3>Site: ${UPTIME.websites[index]}</h3>`;
+				let content = `<h3>Site: ${site}</h3>`;
 				history.forEach((log) => {
 					const statusText = log.status;
 					let status = `<span class='uptime-offline'>${statusText}</span>`;
@@ -133,7 +230,6 @@ const UPTIME = {
 
 		const inputField = document.getElementById('uptime-website'); // Replace with the actual input ID
 		inputField.addEventListener('keypress', (event) => {
-			console.log('K', event.key);
 			if (event.key === 'Enter') {
 				event.preventDefault(); // Prevent form submission if inside a form
 				UPTIME.website.add();
@@ -144,6 +240,7 @@ const UPTIME = {
 
 		clearInterval(UPTIME.settings.interval);
 		UPTIME.settings.interval = setInterval(UPTIME.refresh, 10000); // Refresh every 10 seconds
+		UPTIME.refresh();
 	},
 };
 

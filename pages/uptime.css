@@ -116,56 +116,28 @@
 	font-style: italic;
 }
 
-/* Table */
-.uptime-table {
-	display: table;
-	width: auto;
-	min-width: none;
-	max-width: 100%;
-	border-collapse: collapse;
-}
-.uptime-table-header {
-	display: table-header-group;
-}
-.uptime-table-body {
-	display: table-row-group;
-}
-.uptime-table-row {
-	display: table-row;
-}
-.uptime-table-cell {
-	display: table-cell;
-	padding: 4px 8px;
-	text-align: left;
-	font-size: var(--font-size-sm);
-	border: var(--border);
-	justify-content: start;
-	vertical-align: middle;
-}
-.uptime-table-header .uptime-table-cell {
-	font-size: var(--font-size);
-	text-align: center;
-}
-.uptime-table-row:nth-child(odd) {
+.uptime-site:nth-child(even) {
 	background-color: var(--theme-dark-offset);
 }
 
-/* Misc. */
-.bracket-button-view {
-	width: 30px;
-	min-width: 30px;
-	max-width: 30px;
-	height: 24px;
-	min-height: 24px;
-	max-height: 24px;
-	margin: 0;
-	padding: 0;
-	margin-top: 4px;
-	background-size: 80%;
-	background-image: url(../assets/images/eye-white.png);
-	background-repeat: no-repeat;
-	background-position: center;
+.uptime-last-block {
+	width: fit-content;
+	flex: 0;
+	padding: 4px;
+	border: var(--border);
+	border-radius: var(--border-radius);
+	display: flex;
+	flex-direction: row;
+	gap: 2px;
 }
+.uptime-last-entry {
+	width: 2px;
+	height: 20px;
+	/* border: var(--border); */
+	border-radius: var(--border-radius);
+}
+
+/* Misc. */
 
 .uptime-break {
 	display: block;
@@ -190,6 +162,14 @@
 .uptime-member-add:hover {
 	cursor: pointer;
 	text-decoration: underline;
+}
+.uptime-back-online {
+	background-color: green;
+	font-weight: bold;
+}
+.uptime-back-offline {
+	background-color: red;
+	font-weight: bold;
 }
 .uptime-online {
 	color: green;
