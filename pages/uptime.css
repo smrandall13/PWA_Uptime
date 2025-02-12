@@ -41,6 +41,21 @@
 	background-color: var(--color-accent);
 }
 
+.uptime-input {
+	width: auto;
+	background: transparent;
+	text-align: right;
+	border: var(--border);
+	border-radius: var(--border-radius);
+	border-left: 0;
+	border-right: 0;
+	border-top: 0;
+	height: 24px;
+	min-height: 24px;
+	max-height: 24px;
+	line-height: 24px;
+	padding: 0 2px;
+}
 .uptime-container {
 	display: flex;
 	flex-direction: row;
@@ -121,7 +136,8 @@
 }
 
 .uptime-last-block {
-	width: fit-content;
+	width: 100%;
+	min-width: 100%;
 	flex: 0;
 	padding: 4px;
 	border: var(--border);
@@ -131,10 +147,24 @@
 	gap: 2px;
 }
 .uptime-last-entry {
-	width: 2px;
+	width: auto;
+	min-width: 2px;
+	flex: 1;
 	height: 20px;
-	/* border: var(--border); */
-	border-radius: var(--border-radius);
+	border-radius: 2px;
+}
+.uptime-last-percent {
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	display: flex;
+	width: 100%;
+	z-index: 1;
+	align-items: center;
+	justify-content: center;
+	text-shadow: var(--text-shadow);
 }
 
 /* Misc. */
